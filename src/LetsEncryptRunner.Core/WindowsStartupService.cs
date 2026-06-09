@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using System.Runtime.Versioning;
 
 namespace LetsEncryptRunner.Core;
 
@@ -6,6 +7,7 @@ public sealed class WindowsStartupService
 {
     private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
+    [SupportedOSPlatform("windows")]
     public void Install(string appName, string executablePath, string arguments)
     {
         EnsureWindows();
@@ -16,6 +18,7 @@ public sealed class WindowsStartupService
         key.SetValue(appName, $"\"{executablePath}\" {arguments}");
     }
 
+    [SupportedOSPlatform("windows")]
     public void Uninstall(string appName)
     {
         EnsureWindows();
@@ -34,4 +37,3 @@ public sealed class WindowsStartupService
         }
     }
 }
-

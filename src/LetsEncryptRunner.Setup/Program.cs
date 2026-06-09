@@ -173,7 +173,7 @@ static bool ReadYesNo(string label, bool defaultValue)
         return defaultValue;
     }
 
-    return value.Trim().StartsWith('y', StringComparison.OrdinalIgnoreCase);
+    return value.Trim().StartsWith("y", StringComparison.OrdinalIgnoreCase);
 }
 
 static int ReadInt(string label, int defaultValue)
@@ -238,4 +238,3 @@ internal sealed class CliOptions
 
     public string? Value(string name) => _values.TryGetValue(name, out var value) ? value : null;
 }
-

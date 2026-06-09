@@ -1,0 +1,43 @@
+{
+  "renewalIntervalDays": 87,
+  "renewWhenExpiresWithinDays": 14,
+  "useLetsEncryptStaging": true,
+  "accountKeyPath": "accounts/letsencrypt-account.pem",
+  "certificateStorePath": "certificates",
+  "pfxPasswordEnvironmentVariable": "LETSENCRYPT_RUNNER_PFX_PASSWORD",
+  "websites": [
+    {
+      "name": "example.com",
+      "enabled": true,
+      "domainNames": [
+        "example.com",
+        "www.example.com"
+      ],
+      "emailAddress": "admin@example.com",
+      "renewalIntervalDays": null,
+      "httpChallenge": {
+        "webRootPath": "C:\\inetpub\\wwwroot",
+        "validateChallengeFileBeforeSubmit": true,
+        "cleanUpChallengeFiles": true
+      },
+      "deployment": {
+        "type": "CPanel",
+        "cPanel": {
+          "baseUrl": "https://your-cpanel-host.example.com:2083",
+          "username": "cpanel-user",
+          "apiTokenEnvironmentVariable": "CPANEL_API_TOKEN",
+          "domainNameOverride": "example.com",
+          "allowInvalidTlsCertificate": false
+        }
+      },
+      "state": {
+        "lastIssuedUtc": null,
+        "expiresUtc": null,
+        "lastRenewalAttemptUtc": null,
+        "lastSuccessfulUploadUtc": null,
+        "lastCertificateDirectory": null,
+        "lastError": null
+      }
+    }
+  ]
+}

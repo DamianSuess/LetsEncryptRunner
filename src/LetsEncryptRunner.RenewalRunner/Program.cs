@@ -2,6 +2,7 @@ using LetsEncryptRunner.Core;
 using LetsEncryptRunner.Core.Renewal;
 
 const string StartupAppName = "LetsEncryptRunner.RenewalRunner";
+const string ScheduledTaskName = "LetsEncryptRunner.RenewalRunner";
 
 var options = CliOptions.Parse(args);
 
@@ -13,13 +14,14 @@ if (options.Has("--help") || options.Has("-h"))
 
 var configPath = Path.GetFullPath(options.Value("--config") ?? "sites.json");
 var startupService = new WindowsStartupService();
+var scheduledTaskService = new WindowsScheduledTaskService();
 
 if (options.Has("--install-startup"))
 {
-    var executablePath = Environment.ProcessPath
-        ?? throw new InvalidOperationException("Unable to determine executable path.");
+    EnsureWindowsForStartup();
 
-    startupService.Install(StartupAppName, executablePath, $"--config \"{configPath}\" --run-once");
+    var (executablePath, runnerArguments) = GetRunnerInvocation(configPath);
+    startupService.Install(StartupAppName, executablePath, runnerArguments);
     Console.WriteLine($"Installed Windows startup entry for {StartupAppName}.");
     Console.WriteLine($"Config: {configPath}");
     return 0;
@@ -27,8 +29,39 @@ if (options.Has("--install-startup"))
 
 if (options.Has("--uninstall-startup"))
 {
+    EnsureWindowsForStartup();
+
     startupService.Uninstall(StartupAppName);
     Console.WriteLine($"Removed Windows startup entry for {StartupAppName}.");
+    return 0;
+}
+
+if (options.Has("--install-scheduled-task"))
+{
+    EnsureWindowsForStartup();
+
+    var config = File.Exists(configPath)
+        ? await new LetsEncryptRunner.Core.Configuration.ConfigStore().LoadAsync(configPath)
+        : new LetsEncryptRunner.Core.Configuration.RunnerConfig();
+    var (executablePath, runnerArguments) = GetRunnerInvocation(configPath);
+
+    await scheduledTaskService.InstallAsync(
+        ScheduledTaskName,
+        executablePath,
+        runnerArguments,
+        config.RenewalIntervalDays);
+
+    Console.WriteLine($"Installed Windows scheduled tasks for {ScheduledTaskName} every {config.RenewalIntervalDays} day(s) and at logon.");
+    Console.WriteLine($"Config: {configPath}");
+    return 0;
+}
+
+if (options.Has("--uninstall-scheduled-task"))
+{
+    EnsureWindowsForStartup();
+
+    await scheduledTaskService.UninstallAsync(ScheduledTaskName);
+    Console.WriteLine($"Removed Windows scheduled tasks for {ScheduledTaskName}.");
     return 0;
 }
 
@@ -67,8 +100,36 @@ static void PrintHelp()
       --stop-on-error       Stop after the first site failure.
       --install-startup     Register this runner in HKCU Windows Startup.
       --uninstall-startup   Remove the Windows Startup entry.
+      --install-scheduled-task
+                           Create Windows tasks that run every renewalIntervalDays and at logon.
+      --uninstall-scheduled-task
+                           Remove those Windows scheduled tasks.
       --help                Show help.
     """);
+}
+
+static void EnsureWindowsForStartup()
+{
+    if (!OperatingSystem.IsWindows())
+    {
+        throw new PlatformNotSupportedException("Windows startup registration is only supported on Windows.");
+    }
+}
+
+static (string ExecutablePath, string Arguments) GetRunnerInvocation(string configPath)
+{
+    var executablePath = Environment.ProcessPath
+        ?? throw new InvalidOperationException("Unable to determine executable path.");
+    var entryAssemblyPath = System.Reflection.Assembly.GetEntryAssembly()?.Location;
+    var runnerArguments = $"--config \"{configPath}\" --run-once";
+
+    if (Path.GetFileNameWithoutExtension(executablePath).Equals("dotnet", StringComparison.OrdinalIgnoreCase)
+        && !string.IsNullOrWhiteSpace(entryAssemblyPath))
+    {
+        runnerArguments = $"\"{entryAssemblyPath}\" {runnerArguments}";
+    }
+
+    return (executablePath, runnerArguments);
 }
 
 internal sealed class CliOptions
@@ -97,4 +158,3 @@ internal sealed class CliOptions
 
     public string? Value(string name) => _values.TryGetValue(name, out var value) ? value : null;
 }
-

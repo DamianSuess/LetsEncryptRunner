@@ -6,10 +6,10 @@ obj/
 *.suo
 
 # Local runtime data
-sites.json
-certificates/
-accounts/
-logs/
+/sites.json
+/certificates/
+/accounts/
+/logs/
+/output/
 *.pfx
 *.pem
-
