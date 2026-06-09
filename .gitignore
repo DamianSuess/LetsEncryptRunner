@@ -1,0 +1,15 @@
+bin/
+obj/
+.vs/
+.idea/
+*.user
+*.suo
+
+# Local runtime data
+sites.json
+certificates/
+accounts/
+logs/
+*.pfx
+*.pem
+
