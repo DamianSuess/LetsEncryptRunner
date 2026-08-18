@@ -1,3 +1,6 @@
+// Copyright Xeno Innovations, Inc. 2026
+// See the LICENSE file in the project root for more information.
+
 using LetsEncryptRunner.Core;
 using LetsEncryptRunner.Core.Renewal;
 
@@ -8,8 +11,8 @@ var options = CliOptions.Parse(args);
 
 if (options.Has("--help") || options.Has("-h"))
 {
-    PrintHelp();
-    return 0;
+  PrintHelp();
+  return 0;
 }
 
 var configPath = Path.GetFullPath(options.Value("--config") ?? "sites.json");
@@ -18,51 +21,51 @@ var scheduledTaskService = new WindowsScheduledTaskService();
 
 if (options.Has("--install-startup"))
 {
-    EnsureWindowsForStartup();
+  EnsureWindowsForStartup();
 
-    var (executablePath, runnerArguments) = GetRunnerInvocation(configPath);
-    startupService.Install(StartupAppName, executablePath, runnerArguments);
-    Console.WriteLine($"Installed Windows startup entry for {StartupAppName}.");
-    Console.WriteLine($"Config: {configPath}");
-    return 0;
+  var (executablePath, runnerArguments) = GetRunnerInvocation(configPath);
+  startupService.Install(StartupAppName, executablePath, runnerArguments);
+  Console.WriteLine($"Installed Windows startup entry for {StartupAppName}.");
+  Console.WriteLine($"Config: {configPath}");
+  return 0;
 }
 
 if (options.Has("--uninstall-startup"))
 {
-    EnsureWindowsForStartup();
+  EnsureWindowsForStartup();
 
-    startupService.Uninstall(StartupAppName);
-    Console.WriteLine($"Removed Windows startup entry for {StartupAppName}.");
-    return 0;
+  startupService.Uninstall(StartupAppName);
+  Console.WriteLine($"Removed Windows startup entry for {StartupAppName}.");
+  return 0;
 }
 
 if (options.Has("--install-scheduled-task"))
 {
-    EnsureWindowsForStartup();
+  EnsureWindowsForStartup();
 
-    var config = File.Exists(configPath)
-        ? await new LetsEncryptRunner.Core.Configuration.ConfigStore().LoadAsync(configPath)
-        : new LetsEncryptRunner.Core.Configuration.RunnerConfig();
-    var (executablePath, runnerArguments) = GetRunnerInvocation(configPath);
+  var config = File.Exists(configPath)
+      ? await new LetsEncryptRunner.Core.Configuration.ConfigStore().LoadAsync(configPath)
+      : new LetsEncryptRunner.Core.Configuration.RunnerConfig();
+  var (executablePath, runnerArguments) = GetRunnerInvocation(configPath);
 
-    await scheduledTaskService.InstallAsync(
-        ScheduledTaskName,
-        executablePath,
-        runnerArguments,
-        config.RenewalIntervalDays);
+  await scheduledTaskService.InstallAsync(
+      ScheduledTaskName,
+      executablePath,
+      runnerArguments,
+      config.RenewalIntervalDays);
 
-    Console.WriteLine($"Installed Windows scheduled tasks for {ScheduledTaskName} every {config.RenewalIntervalDays} day(s) and at logon.");
-    Console.WriteLine($"Config: {configPath}");
-    return 0;
+  Console.WriteLine($"Installed Windows scheduled tasks for {ScheduledTaskName} every {config.RenewalIntervalDays} day(s) and at logon.");
+  Console.WriteLine($"Config: {configPath}");
+  return 0;
 }
 
 if (options.Has("--uninstall-scheduled-task"))
 {
-    EnsureWindowsForStartup();
+  EnsureWindowsForStartup();
 
-    await scheduledTaskService.UninstallAsync(ScheduledTaskName);
-    Console.WriteLine($"Removed Windows scheduled tasks for {ScheduledTaskName}.");
-    return 0;
+  await scheduledTaskService.UninstallAsync(ScheduledTaskName);
+  Console.WriteLine($"Removed Windows scheduled tasks for {ScheduledTaskName}.");
+  return 0;
 }
 
 var renewalOptions = new RenewalOptions(
@@ -73,20 +76,20 @@ var renewalOptions = new RenewalOptions(
 
 try
 {
-    var service = new RenewalService();
-    var summary = await service.RunAsync(configPath, renewalOptions, Console.WriteLine);
-    Console.WriteLine($"Done. Processed: {summary.Processed}, skipped: {summary.Skipped}, failed: {summary.Failed}");
-    return summary.Failed == 0 ? 0 : 1;
+  var service = new RenewalService();
+  var summary = await service.RunAsync(configPath, renewalOptions, Console.WriteLine);
+  Console.WriteLine($"Done. Processed: {summary.Processed}, skipped: {summary.Skipped}, failed: {summary.Failed}");
+  return summary.Failed == 0 ? 0 : 1;
 }
 catch (Exception ex)
 {
-    Console.Error.WriteLine(ex.Message);
-    return 1;
+  Console.Error.WriteLine(ex.Message);
+  return 1;
 }
 
 static void PrintHelp()
 {
-    Console.WriteLine("""
+  Console.WriteLine("""
     LetsEncryptRunner.RenewalRunner
 
     Runs once, renews sites that are due, uploads to configured deployment targets, then exits.
@@ -110,51 +113,51 @@ static void PrintHelp()
 
 static void EnsureWindowsForStartup()
 {
-    if (!OperatingSystem.IsWindows())
-    {
-        throw new PlatformNotSupportedException("Windows startup registration is only supported on Windows.");
-    }
+  if (!OperatingSystem.IsWindows())
+  {
+    throw new PlatformNotSupportedException("Windows startup registration is only supported on Windows.");
+  }
 }
 
 static (string ExecutablePath, string Arguments) GetRunnerInvocation(string configPath)
 {
-    var executablePath = Environment.ProcessPath
-        ?? throw new InvalidOperationException("Unable to determine executable path.");
-    var entryAssemblyPath = System.Reflection.Assembly.GetEntryAssembly()?.Location;
-    var runnerArguments = $"--config \"{configPath}\" --run-once";
+  var executablePath = Environment.ProcessPath
+      ?? throw new InvalidOperationException("Unable to determine executable path.");
+  var entryAssemblyPath = System.Reflection.Assembly.GetEntryAssembly()?.Location;
+  var runnerArguments = $"--config \"{configPath}\" --run-once";
 
-    if (Path.GetFileNameWithoutExtension(executablePath).Equals("dotnet", StringComparison.OrdinalIgnoreCase)
-        && !string.IsNullOrWhiteSpace(entryAssemblyPath))
-    {
-        runnerArguments = $"\"{entryAssemblyPath}\" {runnerArguments}";
-    }
+  if (Path.GetFileNameWithoutExtension(executablePath).Equals("dotnet", StringComparison.OrdinalIgnoreCase)
+      && !string.IsNullOrWhiteSpace(entryAssemblyPath))
+  {
+    runnerArguments = $"\"{entryAssemblyPath}\" {runnerArguments}";
+  }
 
-    return (executablePath, runnerArguments);
+  return (executablePath, runnerArguments);
 }
 
 internal sealed class CliOptions
 {
-    private readonly Dictionary<string, string?> _values = new(StringComparer.OrdinalIgnoreCase);
+  private readonly Dictionary<string, string?> _values = new(StringComparer.OrdinalIgnoreCase);
 
-    public static CliOptions Parse(string[] args)
+  public static CliOptions Parse(string[] args)
+  {
+    var options = new CliOptions();
+    for (var i = 0; i < args.Length; i++)
     {
-        var options = new CliOptions();
-        for (var i = 0; i < args.Length; i++)
-        {
-            var arg = args[i];
-            if (!arg.StartsWith('-'))
-            {
-                continue;
-            }
+      var arg = args[i];
+      if (!arg.StartsWith('-'))
+      {
+        continue;
+      }
 
-            var nextIsValue = i + 1 < args.Length && !args[i + 1].StartsWith('-');
-            options._values[arg] = nextIsValue ? args[++i] : null;
-        }
-
-        return options;
+      var nextIsValue = i + 1 < args.Length && !args[i + 1].StartsWith('-');
+      options._values[arg] = nextIsValue ? args[++i] : null;
     }
 
-    public bool Has(string name) => _values.ContainsKey(name);
+    return options;
+  }
 
-    public string? Value(string name) => _values.TryGetValue(name, out var value) ? value : null;
+  public bool Has(string name) => _values.ContainsKey(name);
+
+  public string? Value(string name) => _values.TryGetValue(name, out var value) ? value : null;
 }
