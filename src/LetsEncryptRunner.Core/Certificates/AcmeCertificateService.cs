@@ -1,8 +1,15 @@
 // Copyright Xeno Innovations, Inc. 2026
 // See the LICENSE file in the project root for more information.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
 using Certes;
 using Certes.Acme;
 using LetsEncryptRunner.Core.Configuration;
@@ -146,6 +153,7 @@ public sealed class AcmeCertificateService
     var pfx = pfxBuilder.Build(siteName, pfxPassword);
     await File.WriteAllBytesAsync(pfxPath, pfx, cancellationToken);
 
+    // TODO: Use X509CertificateLoader instead of X509Certificate2 to avoid loading the private key into memory if possible.
     using var certificate = new X509Certificate2(chain.Certificate.ToDer());
     var expiresUtc = new DateTimeOffset(certificate.NotAfter.ToUniversalTime(), TimeSpan.Zero);
 

@@ -172,6 +172,11 @@ Remove the scheduled tasks:
 .\output\RenewalRunner\LetsEncryptRunner.RenewalRunner.exe --uninstall-scheduled-task
 ```
 
+## Future Improvements
+
+* Remove System.Linq dependency
+* Build AOT for device specific and zero-dependency builds
+
 ## References
 
 - Let's Encrypt HTTP-01 challenge docs: https://letsencrypt.org/docs/challenge-types/
