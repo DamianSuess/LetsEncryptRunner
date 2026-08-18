@@ -1,7 +1,13 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/LetsEncryptRunner.Core/LetsEncryptRunner.Core.csproj" />
-    <Project Path="src/LetsEncryptRunner.RenewalRunner/LetsEncryptRunner.RenewalRunner.csproj" />
-    <Project Path="src/LetsEncryptRunner.Setup/LetsEncryptRunner.Setup.csproj" />
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="codemaid.config" />
+    <File Path="config.example.json" />
+    <File Path="README.md" />
   </Folder>
+  <Project Path="src/LetsEncryptRunner.Core/LetsEncryptRunner.Core.csproj" />
+  <Project Path="src/LetsEncryptRunner.RenewalRunner/LetsEncryptRunner.RenewalRunner.csproj" />
+  <Project Path="src/LetsEncryptRunner.Setup/LetsEncryptRunner.Setup.csproj" />
 </Solution>
