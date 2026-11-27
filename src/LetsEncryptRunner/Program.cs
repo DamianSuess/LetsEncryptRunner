@@ -205,7 +205,7 @@ static int ReadInt(string label, int defaultValue)
 static void PrintHelp()
 {
   Console.WriteLine("""
-    LetsEncryptRunner.Setup
+    LetsEncryptRunner
 
     Creates or updates the JSON website config and can issue certificates immediately.
 

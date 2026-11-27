@@ -9,7 +9,7 @@ Two C# console applications for issuing Let's Encrypt certificates with HTTP-01 
 1. Install .NET 10
 2. **Create a config file.** From the project folder, run:
    ```powershell
-   .\LetsEncryptRunner.Setup.exe --config sites.json --add
+   .\LetsEncryptRunner.exe --config sites.json --add
    ```
    * Enter your domain, email, and the folder your website serves folder from when asked.
    * Say yes to staging (test mode) and no to issuing now.
@@ -17,7 +17,7 @@ Two C# console applications for issuing Let's Encrypt certificates with HTTP-01 
 
 3. **Get a Test Certificate.** This checks that Let’s Encrypt can verify your website:
    ```powershell
-   .\LetsEncryptRunner.Setup.exe --config sites.json --issue
+   .\LetsEncryptRunner.exe --config sites.json --issue
    ```
 
 4. **Get your real certificate.**
@@ -35,7 +35,7 @@ Two C# console applications for issuing Let's Encrypt certificates with HTTP-01 
 
 ## Projects
 
-- `LetsEncryptRunner.Setup`: creates/updates the JSON config and can issue certificates immediately.
+- `LetsEncryptRunner`: creates/updates the JSON config and can issue certificates immediately.
 - `LetsEncryptRunner.RenewalRunner`: runs once, renews due certificates, uploads them, updates state in the JSON config, then exits.
 - `LetsEncryptRunner.Core`: shared config, ACME, certificate artifact, renewal, and deployment logic.
 
@@ -67,13 +67,13 @@ The `httpChallenge.webRootPath` must point to the website root that serves that 
 Generate an example:
 
 ```powershell
-dotnet run --project src\LetsEncryptRunner.Setup -- --config config.example.json --sample
+dotnet run --project src\LetsEncryptRunner -- --config config.example.json --sample
 ```
 
 Create your real `sites.json` interactively:
 
 ```powershell
-dotnet run --project src\LetsEncryptRunner.Setup -- --config sites.json --add
+dotnet run --project src\LetsEncryptRunner -- --config sites.json --add
 ```
 
 The key inputs are:
@@ -93,13 +93,13 @@ The default config uses Let's Encrypt staging first. After a successful staging 
 Issue certificates without uploading:
 
 ```powershell
-dotnet run --project src\LetsEncryptRunner.Setup -- --config sites.json --issue
+dotnet run --project src\LetsEncryptRunner -- --config sites.json --issue
 ```
 
 Issue and upload for sites with a configured deployment target:
 
 ```powershell
-dotnet run --project src\LetsEncryptRunner.Setup -- --config sites.json --issue --upload
+dotnet run --project src\LetsEncryptRunner -- --config sites.json --issue --upload
 ```
 
 Artifacts are saved under `certificateStorePath`:
