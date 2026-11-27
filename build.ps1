@@ -7,14 +7,17 @@ $publishRoot = Join-Path $PSScriptRoot 'publish'
 foreach ($project in $solution.SelectNodes('//Project[@Path]'))
 {
   $projectPath = Join-Path $PSScriptRoot $project.GetAttribute('Path')
-  $projectName = [IO.Path]::GetFileNameWithoutExtension($projectPath)
-  $publishPath = Join-Path $publishRoot $projectName
 
-  dotnet publish $projectPath --configuration Release --self-contained false --output $publishPath
+  dotnet publish $projectPath --configuration Release --self-contained false --output $publishRoot -p:CopyOutputSymbolsToPublishDirectory=false
 
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
+}
+
+# Project references can still contribute symbols to the shared publish folder.
+Get-ChildItem -LiteralPath $publishRoot -Filter '*.pdb' -File | ForEach-Object {
+  Remove-Item -LiteralPath $_.FullName
 }
 
 exit 0
