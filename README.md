@@ -4,28 +4,34 @@ Two C# console applications for issuing Let's Encrypt certificates with HTTP-01 
 
 ## How to Use
 
-Updated todo list
+**Make sure your website is ready.** Your domain must point to your web server, and the server must be reachable on port 80. The website folder you use must serve files from `/.well-known/acme-challenge/`. Wildcard certificates, like `*.example.com`, aren’t supported.
 
-1. **Make sure your website is ready.** Your domain must point to your web server, and the server must be reachable on port 80. The website folder you use must serve files from `/.well-known/acme-challenge/`. Wildcard certificates, like `*.example.com`, aren’t supported.
-
+1. Install .NET 10
 2. **Create a config file.** From the project folder, run:
    ```powershell
-   dotnet run --project src\LetsEncryptRunner.Setup -- --config sites.json --add
+   .\LetsEncryptRunner.Setup.exe --config sites.json --add
    ```
-   Enter your domain, email, and website folder when asked.
+   * Enter your domain, email, and the folder your website serves folder from when asked.
+   * Say yes to staging (test mode) and no to issuing now.
+   * This creates sites.json in the current folder.
 
-3. **Test with Let’s Encrypt’s staging service.** Staging is enabled by default, so the first certificate is just a test. Run:
+3. **Get a Test Certificate.** This checks that Let’s Encrypt can verify your website:
    ```powershell
-   dotnet run --project src\LetsEncryptRunner.Setup -- --config sites.json --issue
+   .\LetsEncryptRunner.Setup.exe --config sites.json --issue
    ```
 
-4. **Issue a real certificate.** If the test succeeds, open `sites.json` and change `"useLetsEncryptStaging"` to `false`. Then run the same command again. The certificate files will be saved in the configured certificate folder.
+4. **Get your real certificate.**
+   * If the test succeeds...
+   * Open `sites.json` and change `"useLetsEncryptStaging": false`.
+   * Run Step 3 again.
+   * Then install the certificate from the `certificates` folder on your web host.
 
 5. **Set up automatic renewals if you want them.** Run the renewal app when you want it to check and renew certificates:
    ```powershell
-   dotnet run --project src\LetsEncryptRunner.RenewalRunner -- --config sites.json
+   .\LetsEncryptRunner.RenewalRunner.exe --config "C:\path\to\sites.json"
    ```
-   To have it run automatically at login, publish the app and use its `--install-startup` option. If you also want it to upload certificates to cPanel, configure cPanel in `sites.json` and set your API token as an environment variable first.
+   * To have it run automatically at login, publish the app and use its `--install-startup` option.
+   * If you also want it to upload certificates to cPanel, configure cPanel in `sites.json` and set your API token as an environment variable first.
 
 ## Projects
 
