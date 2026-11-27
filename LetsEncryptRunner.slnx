@@ -9,5 +9,5 @@
   </Folder>
   <Project Path="src/LetsEncryptRunner.Core/LetsEncryptRunner.Core.csproj" />
   <Project Path="src/LetsEncryptRunner.RenewalRunner/LetsEncryptRunner.RenewalRunner.csproj" />
-  <Project Path="src/LetsEncryptRunner.Setup/LetsEncryptRunner.Setup.csproj" />
+  <Project Path="src/LetsEncryptRunner/LetsEncryptRunner.csproj" />
 </Solution>
