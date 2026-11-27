@@ -45,6 +45,7 @@
 
 # Build results
 [Oo]utput/
+[Pp]ublish/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
