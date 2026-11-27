@@ -2,6 +2,31 @@
 
 Two C# console applications for issuing Let's Encrypt certificates with HTTP-01 validation and renewing/uploading them on a configurable interval.
 
+## How to Use
+
+Updated todo list
+
+1. **Make sure your website is ready.** Your domain must point to your web server, and the server must be reachable on port 80. The website folder you use must serve files from `/.well-known/acme-challenge/`. Wildcard certificates, like `*.example.com`, aren’t supported.
+
+2. **Create a config file.** From the project folder, run:
+   ```powershell
+   dotnet run --project src\LetsEncryptRunner.Setup -- --config sites.json --add
+   ```
+   Enter your domain, email, and website folder when asked.
+
+3. **Test with Let’s Encrypt’s staging service.** Staging is enabled by default, so the first certificate is just a test. Run:
+   ```powershell
+   dotnet run --project src\LetsEncryptRunner.Setup -- --config sites.json --issue
+   ```
+
+4. **Issue a real certificate.** If the test succeeds, open `sites.json` and change `"useLetsEncryptStaging"` to `false`. Then run the same command again. The certificate files will be saved in the configured certificate folder.
+
+5. **Set up automatic renewals if you want them.** Run the renewal app when you want it to check and renew certificates:
+   ```powershell
+   dotnet run --project src\LetsEncryptRunner.RenewalRunner -- --config sites.json
+   ```
+   To have it run automatically at login, publish the app and use its `--install-startup` option. If you also want it to upload certificates to cPanel, configure cPanel in `sites.json` and set your API token as an environment variable first.
+
 ## Projects
 
 - `LetsEncryptRunner.Setup`: creates/updates the JSON config and can issue certificates immediately.
